@@ -24,10 +24,10 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: ruff check
-        run: uvx ruff check .
+        run: uvx ruff check $(git ls-files | while read file; do if test -L $file; then continue; else realpath $file; fi; done | sort | uniq | while read file; do grep -lP -m1 '#!/usr/bin/(env )?(python|-S uv)' $file; done)
 
       - name: ruff format
-        run: uvx ruff format --diff .
+        run: uvx ruff format --diff $(git ls-files | while read file; do if test -L $file; then continue; else realpath $file; fi; done | sort | uniq | while read file; do grep -lP -m1 '#!/usr/bin/(env )?(python|-S uv)' $file; done)
 
       # This is an opinionated list of disabled warnings.
       # It potentially makes sense to eventually remove
@@ -51,4 +51,4 @@ jobs:
       # R0917: too-many-positional-arguments
       # W1509: subprocess-popen-preexec-fn
       - name: pylint
-        run: uvx pylint --disable C0114,C0115,C0116,C0301,C0302,R0801,R0902,R0903,R0911,R0912,R0913,R0914,R0915,R0917,W1509 --jobs $(nproc) $(git ls-files '*.py')
+        run: uvx pylint --disable C0114,C0115,C0116,C0301,C0302,R0801,R0902,R0903,R0911,R0912,R0913,R0914,R0915,R0917,W1509 --jobs $(nproc) $(git ls-files | while read file; do if test -L $file; then continue; else realpath $file; fi; done | sort | uniq | while read file; do grep -lP -m1 '#!/usr/bin/(env )?(python|-S uv)' $file; done)
